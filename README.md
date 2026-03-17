@@ -1,3 +1,5 @@
+![GitHub release](https://img.shields.io/github/v/release/ha0224/Raspberry-Pi-ASF-OLED-Monitor)
+
 ![Raspberry Pi ASF Rack](rack.jpg)
 
 Example Raspberry Pi rack setup with an SH1106 OLED display monitoring ArchiSteamFarm servers.
