@@ -4,11 +4,15 @@
 
 Example Raspberry Pi rack setup with an SH1106 OLED display monitoring ArchiSteamFarm servers.
 
-## Demo
+## Demo (v1.0)
 
 ![OLED Demo](demo.gif)
 
 *(The video above is sped up for demonstration purposes.)*
+
+Note:  
+In **v1.0**, the **CARD** value represented the **total remaining cards across all games**.  
+Starting from **v1.1**, **CARD** shows the **remaining cards for the currently farming game**.
 
 ---
 
@@ -44,7 +48,7 @@ Displays ASF status from another Raspberry Pi via SSH:
 - ASF service status (ONLINE / OFFLINE)
 - ASF process uptime
 - Remaining farming games
-- Remaining trading cards
+- Remaining cards for the currently farming game
 - Detects when the Steam account is currently in use
 
 ---
