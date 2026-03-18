@@ -1,4 +1,6 @@
 ![GitHub release](https://img.shields.io/github/v/release/ha0224/Raspberry-Pi-ASF-OLED-Monitor)
+![Python](https://img.shields.io/badge/python-3.x-blue)
+![License](https://img.shields.io/github/license/ha0224/Raspberry-Pi-ASF-OLED-Monitor)
 
 ![Raspberry Pi ASF Rack](rack.jpg)
 
@@ -10,8 +12,9 @@ Example Raspberry Pi rack setup with an SH1106 OLED display monitoring ArchiStea
 
 *(The video above is sped up for demonstration purposes.)*
 
-Note:  
-In **v1.0**, the **CARD** value represented the **total remaining cards across all games**.  
+Note:
+In **v1.0**, the **CARD** value represented the **total remaining cards across all games**.
+
 Starting from **v1.1**, **CARD** shows the **remaining cards for the currently farming game**.
 
 ---
@@ -32,12 +35,12 @@ It allows you to monitor your ASF servers without opening SSH or a web dashboard
 
 Displays Raspberry Pi system information:
 
-- CPU usage
-- RAM usage
-- Disk usage
-- CPU temperature
-- System uptime
-- Local IP address
+* CPU usage
+* RAM usage
+* Disk usage
+* CPU temperature
+* System uptime
+* Local IP address
 
 ---
 
@@ -45,11 +48,11 @@ Displays Raspberry Pi system information:
 
 Displays ASF status from another Raspberry Pi via SSH:
 
-- ASF service status (ONLINE / OFFLINE)
-- ASF process uptime
-- Remaining farming games
-- Remaining cards for the currently farming game
-- Detects when the Steam account is currently in use
+* ASF service status (ONLINE / OFFLINE)
+* ASF process uptime
+* Remaining farming games
+* Remaining cards for the currently farming game
+* Detects when the Steam account is currently in use
 
 ---
 
@@ -107,9 +110,9 @@ The OLED monitor runs on **Server-0** and retrieves ASF status from **Server-1**
 
 Tested with the following hardware:
 
-- Raspberry Pi 4B
-- Raspberry Pi 3
-- SH1106 OLED display (128x64 I2C)
+* Raspberry Pi 4B
+* Raspberry Pi 3
+* SH1106 OLED display (128x64 I2C)
 
 Example server layout:
 
@@ -139,13 +142,13 @@ https://aliexpress.com/item/4001145494936.html
 
 Install required Python libraries:
 
-```bash
+```
 pip3 install luma.oled psutil Pillow
 ```
 
 Run the monitor:
 
-```bash
+```
 python3 stats.py
 ```
 
@@ -157,33 +160,29 @@ Before using this project, make sure the following requirements are met.
 
 ## Hardware
 
-- Two Raspberry Pi devices
-- SH1106 128x64 I2C OLED display connected to **Server-0**
+* Two Raspberry Pi devices
+* SH1106 128x64 I2C OLED display connected to **Server-0**
 
 Example setup:
-
 
 Server-0 : Raspberry Pi with OLED display (monitor node)
 Server-1 : Raspberry Pi running ArchiSteamFarm
 
-
-Server-0 displays system and ASF status on the OLED screen.  
+Server-0 displays system and ASF status on the OLED screen.
 Server-1 runs **ArchiSteamFarm** and provides farming information via SSH.
 
 ---
 
 ## Network
 
-- Both Raspberry Pi devices must be on the **same local network**
-- Server-0 must be able to reach Server-1 via **SSH**
+* Both Raspberry Pi devices must be on the **same local network**
+* Server-0 must be able to reach Server-1 via **SSH**
 
 Example:
-
 
 Server-0 → 192.168.0.10
 
 Server-1 → 192.168.0.11
-
 
 ---
 
@@ -191,9 +190,10 @@ Server-1 → 192.168.0.11
 
 On **Server-0**, enable I2C for the OLED display:
 
-```bash
+```
 sudo raspi-config
 ```
+
 Navigate to:
 
 Interface Options → I2C → Enable
@@ -206,16 +206,25 @@ Then reboot the Raspberry Pi.
 
 Install the required Python libraries on Server-0:
 
+```
 pip3 install luma.oled Pillow psutil
+```
+
+---
+
 ## ArchiSteamFarm
 
 Server-1 must have ArchiSteamFarm installed and running.
 
 The script checks the ASF service status using:
 
+```
 systemctl is-active asf
+```
 
-Make sure ASF is running as a systemd service named asf.
+Make sure ASF is running as a systemd service named **asf**.
+
+---
 
 ## SSH Access
 
@@ -223,17 +232,11 @@ Server-0 must be able to connect to Server-1 using SSH.
 
 Example:
 
+```
 ssh -p PORT USER@SERVER_IP
+```
 
 Passwordless SSH login using SSH keys is recommended for reliable monitoring.
-
-## ASF Log Language
-
-The ASF log parsing logic in this script is based on Korean ASF logs.
-
-If your ASF logs are in another language, you may need to modify the parsing logic inside:
-
-get_asf_farm_status()
 
 ---
 
@@ -262,7 +265,7 @@ Passwordless SSH login (SSH keys) is recommended.
 
 ---
 
-# ASF Log Language
+## ASF Log Language
 
 The log parsing logic in this script is based on **Korean ASF logs**.
 
@@ -280,7 +283,8 @@ The Raspberry Pi rack mount case used in this setup was designed by another crea
 
 You can find the 3D model here:
 
-https://www.printables.com/model/211251-19-raspberry-pi-34-rackmount-with-13-oled-screen-p  
+https://www.printables.com/model/211251-19-raspberry-pi-34-rackmount-with-13-oled-screen-p
+
 https://www.printables.com/model/352578-triple-raspberrypi-rack-mount
 
 ---
