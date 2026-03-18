@@ -199,11 +199,11 @@ def get_asf_info():
         return "ERROR", ""
 
 
-# Check remaining ASF farming games/cards
+# Check remaining ASF farming games/current game cards
 def get_asf_farm_status():
     try:
         result = subprocess.run(
-            SSH_OPTS + ["journalctl", "-u", "asf", "-n", "120", "--no-pager"],
+            SSH_OPTS + ["journalctl", "-u", "asf", "-n", "1000", "--no-pager"],
             capture_output=True,
             text=True,
             timeout=4
@@ -215,7 +215,6 @@ def get_asf_farm_status():
             return "N/A", "N/A"
 
         lines = log_text.strip().splitlines()
-        lines.reverse()  # Check newest logs first
 
 ##############################
 # NOTE:
@@ -224,27 +223,75 @@ def get_asf_farm_status():
 # you may need to modify the patterns accordingly.
 ##############################
 
-        for line in lines:
-            # 1. Account in use / farming waiting
-            if "계정이 현재 사용 중입니다" in line or "농사가 현재 불가능 합니다" in line:
-                return "WAIT", "WAIT"
+        # 1. Determine CURRENT state from the latest state-related logs
+        current_state = None
+        current_cards = None
 
-            # 2. Total remaining games / cards
+        for line in reversed(lines):
+            # Farming in progress (highest priority)
+            card_match = re.search(r"농사 상태:\s*(\d+)개의 카드 남음", line)
+            if card_match:
+                current_state = "FARMING"
+                current_cards = card_match.group(1)
+                break
+
+            if "FarmCards() 아직 농사 중:" in line or "FarmSolo() 현재 농사 중:" in line:
+                current_state = "FARMING"
+                break
+
+            # Account in use / waiting
+            if "계정이 현재 사용 중입니다" in line or "농사가 현재 불가능 합니다" in line:
+                current_state = "WAIT"
+                break
+
+            # Nothing left to farm
+            if "이 계정에는 농사지을 것이 없습니다" in line or "농사 완료!" in line:
+                current_state = "DONE"
+                break
+
+        if current_state == "WAIT":
+            return "WAIT", "WAIT"
+
+        if current_state == "DONE":
+            return "0", "0"
+
+        # 2. Find the latest total games line
+        total_games = None
+        total_index = None
+
+        for i in range(len(lines) - 1, -1, -1):
+            line = lines[i]
             match = re.search(r"총\s+(\d+)개의\s+게임\s+\((\d+)개의\s+카드\)\s+남음", line)
             if match:
-                games = match.group(1)
-                cards = match.group(2)
-                return games, cards
+                total_games = int(match.group(1))
+                total_index = i
+                break
 
-            # 3. Nothing left to farm
-            if "이 계정에는 농사지을 것이 없습니다" in line:
-                return "0", "0"
+        if total_games is None or total_index is None:
+            if current_state == "FARMING":
+                return "N/A", current_cards if current_cards is not None else "N/A"
+            return "N/A", "N/A"
 
-            # 4. Farming completed
-            if "농사 완료!" in line:
-                return "0", "0"
+        # 3. Count completed games after the latest total games line
+        completed_ids = set()
 
-        return "N/A", "N/A"
+        for line in lines[total_index + 1:]:
+            complete_match = re.search(r"FarmSolo\(\)\s+농사 완료:\s+(\d+)", line)
+            if complete_match:
+                completed_ids.add(complete_match.group(1))
+
+            card_match = re.search(r"농사 상태:\s*(\d+)개의 카드 남음", line)
+            if card_match:
+                current_cards = card_match.group(1)
+
+        remaining_games = total_games - len(completed_ids)
+        if remaining_games < 0:
+            remaining_games = 0
+
+        if current_cards is None:
+            current_cards = "N/A"
+
+        return str(remaining_games), str(current_cards)
 
     except subprocess.TimeoutExpired:
         return "N/A", "N/A"
@@ -308,7 +355,7 @@ while True:
 
         time.sleep(5)
 
-    # 3. GAMES / CARDS screen
+    # 3. GAMES / CARD screen
     asf_status, _ = get_asf_info()
 
     with canvas(device) as draw:
@@ -316,13 +363,13 @@ while True:
         draw.text((0 + offset, 16), "SERVER: Server-1", font=font, fill="white")
 
         if asf_status == "ONLINE":
-            games_left, cards_left = get_asf_farm_status()
+            games_left, current_cards = get_asf_farm_status()
 
             if games_left == "WAIT":
                 draw.text((0 + offset, 32), "IN USE / WAIT", font=font, fill="white")
             else:
                 draw.text((0 + offset, 32), f"GAMES: {games_left}", font=font, fill="white")
-                draw.text((0 + offset, 48), f"CARDS: {cards_left}", font=font, fill="white")
+                draw.text((0 + offset, 48), f"CARD: {current_cards}", font=font, fill="white")
 
         elif asf_status == "OFFLINE":
             draw.text((0 + offset, 32), "BOT OFFLINE", font=font, fill="white")
