@@ -151,6 +151,92 @@ python3 stats.py
 
 ---
 
+# Requirements
+
+Before using this project, make sure the following requirements are met.
+
+## Hardware
+
+- Two Raspberry Pi devices
+- SH1106 128x64 I2C OLED display connected to **Server-0**
+
+Example setup:
+
+
+Server-0 : Raspberry Pi with OLED display (monitor node)
+Server-1 : Raspberry Pi running ArchiSteamFarm
+
+
+Server-0 displays system and ASF status on the OLED screen.  
+Server-1 runs **ArchiSteamFarm** and provides farming information via SSH.
+
+---
+
+## Network
+
+- Both Raspberry Pi devices must be on the **same local network**
+- Server-0 must be able to reach Server-1 via **SSH**
+
+Example:
+
+
+Server-0 → 192.168.0.10
+
+Server-1 → 192.168.0.11
+
+
+---
+
+## Raspberry Pi Configuration
+
+On **Server-0**, enable I2C for the OLED display:
+
+```bash
+sudo raspi-config
+```
+Navigate to:
+
+Interface Options → I2C → Enable
+
+Then reboot the Raspberry Pi.
+
+---
+
+## Python Dependencies
+
+Install the required Python libraries on Server-0:
+
+pip3 install luma.oled Pillow psutil
+## ArchiSteamFarm
+
+Server-1 must have ArchiSteamFarm installed and running.
+
+The script checks the ASF service status using:
+
+systemctl is-active asf
+
+Make sure ASF is running as a systemd service named asf.
+
+## SSH Access
+
+Server-0 must be able to connect to Server-1 using SSH.
+
+Example:
+
+ssh -p PORT USER@SERVER_IP
+
+Passwordless SSH login using SSH keys is recommended for reliable monitoring.
+
+## ASF Log Language
+
+The ASF log parsing logic in this script is based on Korean ASF logs.
+
+If your ASF logs are in another language, you may need to modify the parsing logic inside:
+
+get_asf_farm_status()
+
+---
+
 # Configuration
 
 Edit the following values inside **stats.py**.
